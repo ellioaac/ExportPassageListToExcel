@@ -4,6 +4,8 @@ import java.io.File;
 
 import javax.swing.filechooser.FileFilter;
 
+// TODO add better comments
+
 /**
  * Filters out all files except files used for Excel (*.xls and *.xlsx).
  */
