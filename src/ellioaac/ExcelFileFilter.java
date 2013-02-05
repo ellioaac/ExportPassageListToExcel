@@ -4,7 +4,7 @@ import java.io.File;
 
 import javax.swing.filechooser.FileFilter;
 
-// TODO add better comments
+// TODO can I use .xlsx?  Read EJAPI to see if compatible.
 
 /**
  * Filters out all files except files used for Excel (*.xls and *.xlsx).
@@ -12,21 +12,27 @@ import javax.swing.filechooser.FileFilter;
 public class ExcelFileFilter extends FileFilter {
 
 	@Override
-	public boolean accept(File f) {
-		if (f.isDirectory()) {
-			return true;
-		}
+	public boolean accept(File file) {
+		
+		// TODO can I combine this into one if statement?
+		
+		// true if file should be accepted by filter
+		boolean isAccepted = false;
+		
+		// allows user to select directories
+		if (file.isDirectory()) {
+			isAccepted = true;
+		} else {
 
-		String extension = Utils.getExtension(f);
-		if (extension != null) {
-			if (extension.equals(Utils.xls) || extension.equals(Utils.xlsx)) {
-				return true;
-			} else {
-				return false;
+			// get extension of file and ensure is Excel compatible
+			String extension = Utils.getExtension(file);
+			if (extension != null &&
+					(extension.equals(Utils.xls) || extension.equals(Utils.xlsx))) {
+				isAccepted = true;
 			}
 		}
 
-		return false;
+		return isAccepted;
 	}
 
 	@Override

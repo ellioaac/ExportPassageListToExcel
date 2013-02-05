@@ -8,20 +8,24 @@ public class TxtFileFilter extends FileFilter {
 
 	@Override
 	public boolean accept(File f) {
+		
+		boolean isAccepted = false;
+		
+		// TODO can I combine this into one if statement?
+		
+		// allows user to select directories
 		if (f.isDirectory()) {
-			return true;
-		}
+			isAccepted = true;
+		} else {
 
-		String extension = Utils.getExtension(f);
-		if (extension != null) {
-			if (extension.equals(Utils.txt)) {
-				return true;
-			} else {
-				return false;
+			// set filter to default to only show txt files
+			String extension = Utils.getExtension(f);
+			if (extension != null && extension.equals(Utils.txt)) {
+				isAccepted = true;
 			}
 		}
 
-		return false;
+		return isAccepted;
 	}
 
 	@Override
