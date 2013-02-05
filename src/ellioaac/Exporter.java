@@ -30,7 +30,8 @@ public class Exporter {
 	 */
 	public static void main(String[] args) {
 
-		new Exporter();
+		Exporter exporter = new Exporter();
+		exporter.run();  // runs the program
 
 	}
 	
@@ -44,19 +45,33 @@ public class Exporter {
 	 */
 	private ArrayList<String> verses = null;
 
+	// TODO is this constructor needed?
+	
 	/**
-	 * Creates an Exporter.
+	 * Creates an Exporter by initializing some internals
 	 */
 	public Exporter() {
 
-		// initialize
+		// initialize variables
 		refs = new ArrayList<String>();
 		verses = new ArrayList<String>();
-
+		
+	}
+	
+	/**
+	 * Starts the program and handles remaining exceptions.
+	 */
+	public void run() {
+		
+		// read verses in from a text file
 		readVerses();
 
 		// TODO handle exceptions
 		try {
+			// export verses into Excel
+			
+			// TODO currently the Excel document is created but no text 
+			// has been added to the worksheet except for the title.
 			exportVerses();
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -69,12 +84,13 @@ public class Exporter {
 	 */
 	public void readVerses() {
 
-		// allows user to select input file
+		// allows user to select input file in a window
 		JFileChooser chooser = new JFileChooser();
 
 		// only shows .txt files
 		chooser.setFileFilter(new TxtFileFilter());
 
+		// setup FileChooser
 		int returnVal = chooser.showOpenDialog(null);
 		if (returnVal == JFileChooser.APPROVE_OPTION) {
 			File inFile = chooser.getSelectedFile();
@@ -82,27 +98,33 @@ public class Exporter {
 			Scanner scan = null;
 
 			try {
-				scan = new Scanner(inFile);
-
-				// read in verses
-				// count is used to determine if even or odd term
-				// will add item to refs if odd, add to verses if even
-				int count = 0;
-				System.out.println("before loop");
+				scan = new Scanner(inFile); // instantiate Scanner
+				
+				// following code reads in the file and stores the verses 
+				// and references.
+				
+				/*
+				 * Logos exports the passage list so that the first line contains
+				 * a reference and the following line contains the related verse.
+				 * The format continues with pairs of lines in that the first
+				 * line of the pair is always a reference and the second line is 
+				 * always the verse associated with that reference.
+				 */
+				int lineNumber = 0;
 				while (scan.hasNextLine()) {
 
 					String line = scan.nextLine();
 
-					// if even (reference)
-					if ((count % 2) == 0) {
+					// if line number is even then add to refs
+					if ((lineNumber % 2) == 0) {
 						refs.add(line);
 					}
-					// if odd (verse)
-					else if ((count % 2) == 1) {
+					// if line number is odd than add to verses
+					else if ((lineNumber % 2) == 1) {
 						verses.add(line);
 					}
 
-					count++;
+					lineNumber++;
 				}
 
 				// TODO handle exceptions
@@ -125,29 +147,32 @@ public class Exporter {
 
 		// TODO allow for headers on columns if user wants
 
-		// TODO need to put a filter on save fileChooser to limit to only xls
-		// files
-
 		// allows user to choose where to save output file
 		JFileChooser save = new JFileChooser();
 		
 		//only allows .xls and .xlsx files
 		save.setFileFilter(new ExcelFileFilter());
 		
+		// setup file chooser
 		int returnVal = save.showSaveDialog(null);
 		if (returnVal == JFileChooser.APPROVE_OPTION) {
 			File outFile = save.getSelectedFile();
 
+			// This is pulling from the Java Excel API
+			// the JEAPI library is packaged with this software.
 			WritableWorkbook workbook = null;
 			WritableSheet sheet = null;
 
 			// create workbook
 			workbook = Workbook.createWorkbook(outFile);
 
-			// create sheet
+			// create sheet with a specified title
 			sheet = workbook.createSheet("Verses", 0);
 
-			// add references to column A starting at row 0
+			// TODO shoudn't I add starting at row = 1 or 2 
+			// to allow for a header?
+			
+			// add the references to column A starting at row 0
 			for (int i = 0; i < refs.size(); i++) {
 				Label label = new Label(0, i, refs.get(i));
 				sheet.addCell(label);
@@ -159,6 +184,7 @@ public class Exporter {
 				sheet.addCell(label);
 			}
 
+			// finalize the workbook
 			workbook.write();
 			workbook.close();
 		} // end if
